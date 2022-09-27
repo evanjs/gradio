@@ -184,7 +184,7 @@
 						>
 							<img
 								alt=""
-								class="h-full w-full overflow-hidden object-contain"
+								class="w-full overflow-hidden object-contain"
 								src={image}
 							/>
 							{#if caption}
