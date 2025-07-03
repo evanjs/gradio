@@ -39,6 +39,8 @@ import {
 	COMPONENT_SERVER_URL
 } from "./constants";
 
+declare const BROWSER_BUILD: boolean;
+
 export class Client {
 	app_reference: string;
 	options: ClientOptions;
@@ -65,7 +67,7 @@ export class Client {
 	abort_controller: AbortController | null = null;
 	stream_instance: EventSource | null = null;
 	current_payload: any;
-	ws_map: Record<string, WebSocket | "failed"> = {};
+	ws_map: Record<string, WebSocket | "pending" | "failed" | "closed"> = {};
 
 	get_url_config(url: string | null = null): Config {
 		if (!this.config) {
@@ -214,8 +216,10 @@ export class Client {
 			(typeof window === "undefined" || !("WebSocket" in window)) &&
 			!global.WebSocket
 		) {
-			const ws = await import("ws");
-			global.WebSocket = ws.WebSocket as unknown as typeof WebSocket;
+			if (!BROWSER_BUILD) {
+				const ws = await import("ws");
+				global.WebSocket = ws.WebSocket as unknown as typeof WebSocket;
+			}
 		}
 
 		if (this.options.auth) {
@@ -275,6 +279,9 @@ export class Client {
 		}
 	): Promise<Client> {
 		const client = new this(app_reference, options); // this refers to the class itself, not the instance
+		if (options.session_hash) {
+			client.session_hash = options.session_hash;
+		}
 		await client.init();
 		return client;
 	}
@@ -346,12 +353,6 @@ export class Client {
 	): Promise<Config | client_return> {
 		this.config = _config;
 		this.api_prefix = _config.api_prefix || "";
-
-		if (typeof window !== "undefined" && typeof document !== "undefined") {
-			if (window.location.protocol === "https:") {
-				this.config.root = this.config.root.replace("http://", "https://");
-			}
-		}
 
 		if (this.config.auth_required) {
 			return this.prepare_return_obj();
@@ -503,7 +504,9 @@ export class Client {
 				return;
 			}
 
+			this.ws_map[url] = "pending";
 			ws.onopen = () => {
+				this.ws_map[url] = ws;
 				resolve();
 			};
 
@@ -515,12 +518,10 @@ export class Client {
 			};
 
 			ws.onclose = () => {
-				delete this.ws_map[url];
-				this.ws_map[url] = "failed";
+				this.ws_map[url] = "closed";
 			};
 
 			ws.onmessage = (event) => {};
-			this.ws_map[url] = ws;
 		});
 	}
 
@@ -528,6 +529,12 @@ export class Client {
 		// connect if not connected
 		if (!(url in this.ws_map)) {
 			await this.connect_ws(url);
+		} else if (
+			this.ws_map[url] === "pending" ||
+			this.ws_map[url] === "closed" ||
+			this.ws_map[url] === "failed"
+		) {
+			return;
 		}
 		const ws = this.ws_map[url];
 		if (ws instanceof WebSocket) {

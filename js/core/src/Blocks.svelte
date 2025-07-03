@@ -9,13 +9,17 @@
 	import type { ComponentMeta, Dependency, LayoutNode } from "./types";
 	import type { UpdateTransaction } from "./init";
 	import { setupi18n } from "./i18n";
-	import { ApiDocs, ApiRecorder, Settings } from "./api_docs/";
 	import type { ThemeMode, Payload } from "./types";
 	import { Toast } from "@gradio/statustracker";
 	import type { ToastMessage } from "@gradio/statustracker";
 	import type { ShareData, ValueData } from "@gradio/utils";
 	import MountComponents from "./MountComponents.svelte";
 	import { prefix_css } from "./css";
+
+	import type ApiDocs from "./api_docs/ApiDocs.svelte";
+	import type ApiRecorder from "./api_docs/ApiRecorder.svelte";
+	import type Settings from "./api_docs/Settings.svelte";
+	import type { ComponentType } from "svelte";
 
 	import logo from "./images/logo.svg";
 	import api_logo from "./api_docs/img/api-logo.svg";
@@ -74,13 +78,18 @@
 	}
 
 	let old_dependencies = dependencies;
-	$: if (dependencies !== old_dependencies && render_complete) {
+	$: if (
+		dependencies !== old_dependencies &&
+		render_complete &&
+		!layout_creating
+	) {
 		// re-run load triggers in SSR mode when page changes
 		handle_load_triggers();
 		old_dependencies = dependencies;
 	}
 
 	async function run(): Promise<void> {
+		layout_creating = true;
 		await create_layout({
 			components,
 			layout,
@@ -91,6 +100,7 @@
 				fill_height
 			}
 		});
+		layout_creating = false;
 	}
 
 	export let search_params: URLSearchParams;
@@ -101,8 +111,39 @@
 	let allow_zoom = true;
 	let allow_video_trim = true;
 
-	function set_api_docs_visible(visible: boolean): void {
+	// Lazy component loading state
+	let ApiDocs: ComponentType<ApiDocs> | null = null;
+	let ApiRecorder: ComponentType<ApiRecorder> | null = null;
+	let Settings: ComponentType<Settings> | null = null;
+
+	async function loadApiDocs(): Promise<void> {
+		if (!ApiDocs || !ApiRecorder) {
+			const api_docs_module = await import("./api_docs/ApiDocs.svelte");
+			const api_recorder_module = await import("./api_docs/ApiRecorder.svelte");
+			if (!ApiDocs) ApiDocs = api_docs_module.default;
+			if (!ApiRecorder) ApiRecorder = api_recorder_module.default;
+		}
+	}
+
+	async function loadApiRecorder(): Promise<void> {
+		if (!ApiRecorder) {
+			const api_recorder_module = await import("./api_docs/ApiRecorder.svelte");
+			ApiRecorder = api_recorder_module.default;
+		}
+	}
+
+	async function loadSettings(): Promise<void> {
+		if (!Settings) {
+			const settings_module = await import("./api_docs/Settings.svelte");
+			Settings = settings_module.default;
+		}
+	}
+
+	async function set_api_docs_visible(visible: boolean): Promise<void> {
 		api_recorder_visible = false;
+		if (visible) {
+			await loadApiDocs();
+		}
 		api_docs_visible = visible;
 		let params = new URLSearchParams(window.location.search);
 		if (visible) {
@@ -113,7 +154,10 @@
 		history.replaceState(null, "", "?" + params.toString());
 	}
 
-	function set_settings_visible(visible: boolean): void {
+	async function set_settings_visible(visible: boolean): Promise<void> {
+		if (visible) {
+			await loadSettings();
+		}
 		let params = new URLSearchParams(window.location.search);
 		if (visible) {
 			params.set("view", "settings");
@@ -126,7 +170,9 @@
 
 	let api_calls: Payload[] = [];
 
+	let layout_creating = false;
 	export let render_complete = false;
+
 	async function handle_update(data: any, fn_index: number): Promise<void> {
 		const dep = dependencies.find((dep) => dep.id === fn_index);
 		const input_type = components.find(
@@ -489,6 +535,11 @@
 					dependencies: dependencies,
 					render_id: render_id
 				});
+				_dependencies.forEach((dep) => {
+					if (dep.targets.some((dep) => dep[1] === "load")) {
+						wait_then_trigger_api_call(dep.id);
+					}
+				});
 			}
 
 			function handle_log(msg: LogMessage): void {
@@ -671,7 +722,6 @@
 			if (is_external_url(_link) && _target !== "_blank")
 				a[i].setAttribute("target", "_blank");
 		}
-
 		handle_load_triggers();
 
 		if (!target || render_complete) return;
@@ -819,6 +869,17 @@
 				$is_screen_recording = isRecording;
 			}
 		);
+
+		// Load components if they should be visible on initial page load
+		if (api_docs_visible) {
+			loadApiDocs();
+		}
+		if (api_recorder_visible) {
+			loadApiRecorder();
+		}
+		if (settings_visible) {
+			loadSettings();
+		}
 	});
 
 	function screen_recording(): void {
@@ -828,11 +889,6 @@
 			screen_recorder.startRecording();
 		}
 	}
-
-	let i18n_ready = false;
-	setupi18n(app.config?.i18n_translations ?? undefined).then(() => {
-		i18n_ready = true;
-	});
 </script>
 
 <svelte:head>
@@ -846,7 +902,7 @@
 
 <div class="wrap" style:min-height={app_mode ? "100%" : "auto"}>
 	<div class="contain" style:flex-grow={app_mode ? "1" : "auto"}>
-		{#if $_layout && app.config && i18n_ready}
+		{#if $_layout && app.config}
 			<MountComponents
 				rootNode={$_layout}
 				{root}
@@ -867,6 +923,10 @@
 				<button
 					on:click={() => {
 						set_api_docs_visible(!api_docs_visible);
+					}}
+					on:mouseenter={() => {
+						loadApiDocs();
+						loadApiRecorder();
 					}}
 					class="show-api"
 				>
@@ -904,6 +964,9 @@
 				on:click={() => {
 					set_settings_visible(!settings_visible);
 				}}
+				on:mouseenter={() => {
+					loadSettings();
+				}}
 				class="settings"
 			>
 				{$_("common.settings")}
@@ -913,7 +976,7 @@
 	{/if}
 </div>
 
-{#if api_recorder_visible}
+{#if api_recorder_visible && ApiRecorder}
 	<!-- TODO: fix -->
 	<!-- svelte-ignore a11y-click-events-have-key-events-->
 	<!-- svelte-ignore a11y-no-static-element-interactions-->
@@ -924,11 +987,11 @@
 			api_recorder_visible = false;
 		}}
 	>
-		<ApiRecorder {api_calls} {dependencies} />
+		<svelte:component this={ApiRecorder} {api_calls} {dependencies} />
 	</div>
 {/if}
 
-{#if api_docs_visible && $_layout}
+{#if api_docs_visible && $_layout && ApiDocs}
 	<div class="api-docs">
 		<!-- TODO: fix -->
 		<!-- svelte-ignore a11y-click-events-have-key-events-->
@@ -940,12 +1003,14 @@
 			}}
 		/>
 		<div class="api-docs-wrap">
-			<ApiDocs
+			<svelte:component
+				this={ApiDocs}
 				root_node={$_layout}
 				on:close={(event) => {
 					set_api_docs_visible(false);
 					api_calls = [];
-					api_recorder_visible = event.detail?.api_recorder_visible;
+					api_recorder_visible = api_recorder_visible =
+						event.detail?.api_recorder_visible;
 				}}
 				{dependencies}
 				{root}
@@ -958,7 +1023,7 @@
 	</div>
 {/if}
 
-{#if settings_visible && $_layout && app.config}
+{#if settings_visible && $_layout && app.config && Settings}
 	<div class="api-docs">
 		<!-- TODO: fix -->
 		<!-- svelte-ignore a11y-click-events-have-key-events-->
@@ -970,13 +1035,14 @@
 			}}
 		/>
 		<div class="api-docs-wrap">
-			<Settings
+			<svelte:component
+				this={Settings}
 				bind:allow_zoom
 				bind:allow_video_trim
-				on:close={(event) => {
+				on:close={() => {
 					set_settings_visible(false);
 				}}
-				on:start_recording={(event) => {
+				on:start_recording={() => {
 					screen_recording();
 				}}
 				pwa_enabled={app.config.pwa}
