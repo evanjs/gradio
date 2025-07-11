@@ -1,5 +1,51 @@
 # @gradio/fileexplorer
 
+## 0.5.34
+
+### Dependency updates
+
+- @gradio/atoms@0.16.3
+- @gradio/statustracker@0.10.14
+- @gradio/upload@0.16.10
+- @gradio/client@1.15.5
+- @gradio/checkbox@0.4.25
+- @gradio/file@0.12.23
+
+## 0.5.33
+
+### Dependency updates
+
+- @gradio/upload@0.16.9
+- @gradio/client@1.15.4
+- @gradio/file@0.12.22
+
+## 0.5.32
+
+### Dependency updates
+
+- @gradio/statustracker@0.10.13
+- @gradio/atoms@0.16.2
+- @gradio/client@1.15.3
+- @gradio/upload@0.16.8
+- @gradio/checkbox@0.4.24
+- @gradio/file@0.12.21
+
+## 0.5.31
+
+### Dependency updates
+
+- @gradio/statustracker@0.10.12
+- @gradio/checkbox@0.4.23
+
+## 0.5.31
+
+### Dependency updates
+
+- @gradio/upload@0.16.7
+- @gradio/checkbox@0.4.23
+- @gradio/client@1.15.2
+- @gradio/file@0.12.20
+
 ## 0.5.30
 
 ### Dependency updates

@@ -1,5 +1,31 @@
 # @gradio/client
 
+## 1.15.5
+
+### Fixes
+
+- [#11430](https://github.com/gradio-app/gradio/pull/11430) [`4d4cd4b`](https://github.com/gradio-app/gradio/commit/4d4cd4b08d6daafc66e0189a2b274916da00d480) - fix exports + add browser build.  Thanks @pngwn!
+- [#11435](https://github.com/gradio-app/gradio/pull/11435) [`50d43a8`](https://github.com/gradio-app/gradio/commit/50d43a8e8bc2a4862668a5d46a5e6482b4f75fe3) - SSR Auth Fix.  Thanks @dawoodkhan82!
+
+## 1.15.4
+
+### Fixes
+
+- [#11432](https://github.com/gradio-app/gradio/pull/11432) [`dd1eee5`](https://github.com/gradio-app/gradio/commit/dd1eee5f9cd3d70773912fd6444d093bdcea321a) - Fix bug where cancelling an event would close the event stream.  Thanks @freddyaboulton!
+- [#11421](https://github.com/gradio-app/gradio/pull/11421) [`c2acf6e`](https://github.com/gradio-app/gradio/commit/c2acf6e33025fe7bbfe0660c182006651cc95090) - Preserve value in reload mode.  Thanks @aliabid94!
+
+## 1.15.3
+
+### Fixes
+
+- [#11387](https://github.com/gradio-app/gradio/pull/11387) [`8245afc`](https://github.com/gradio-app/gradio/commit/8245afc669501e1e5f0d619f452455f68a3b7667) - Define root URL in frontend.  Thanks @aliabid94!
+
+## 1.15.2
+
+### Fixes
+
+- [#11325](https://github.com/gradio-app/gradio/pull/11325) [`2b571e1`](https://github.com/gradio-app/gradio/commit/2b571e13afdc8031ce9c1291abf0fc7062340064) - Fix image streaming - wait for ws to open.  Thanks @freddyaboulton!
+
 ## 1.15.1
 
 ### Fixes

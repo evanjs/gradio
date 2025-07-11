@@ -1,5 +1,72 @@
 # @self/app
 
+## 1.50.1
+
+### Features
+
+- [#11539](https://github.com/gradio-app/gradio/pull/11539) [`6b6d95b`](https://github.com/gradio-app/gradio/commit/6b6d95b6409f9136233ba1d4f55a1cab9e040070) - Update @huggingface/space-header to 1.0.4.  Thanks @aayush4vedi!
+
+## 1.50.0
+
+### Features
+
+- [#11427](https://github.com/gradio-app/gradio/pull/11427) [`6b2bcd0`](https://github.com/gradio-app/gradio/commit/6b2bcd097ae5ef999a7fb273ecf7c7e4c0eab305) - Improve load times of the Gradio front-end.  Thanks @pngwn!
+- [#11511](https://github.com/gradio-app/gradio/pull/11511) [`1a99336`](https://github.com/gradio-app/gradio/commit/1a99336043076e7b0a4c4b07f97082f0361882f4) - Fix SSR.  Thanks @pngwn!
+
+### Fixes
+
+- [#11435](https://github.com/gradio-app/gradio/pull/11435) [`50d43a8`](https://github.com/gradio-app/gradio/commit/50d43a8e8bc2a4862668a5d46a5e6482b4f75fe3) - SSR Auth Fix.  Thanks @dawoodkhan82!
+
+### Dependency updates
+
+- @gradio/client@1.15.5
+- @gradio/core@0.21.0
+
+## 1.49.16
+
+### Fixes
+
+- [#11421](https://github.com/gradio-app/gradio/pull/11421) [`c2acf6e`](https://github.com/gradio-app/gradio/commit/c2acf6e33025fe7bbfe0660c182006651cc95090) - Preserve value in reload mode.  Thanks @aliabid94!
+
+### Dependency updates
+
+- @gradio/client@1.15.4
+- @gradio/core@0.20.0
+
+## 1.49.15
+
+### Fixes
+
+- [#11414](https://github.com/gradio-app/gradio/pull/11414) [`b2b40b6`](https://github.com/gradio-app/gradio/commit/b2b40b633d3aae5e2538198f116abd57aab6eea4) - Fixes white background appears while a Gradio app with SSR is loading.  Thanks @dawoodkhan82!
+
+### Dependency updates
+
+- @gradio/core@0.19.3
+
+## 1.49.14
+
+### Fixes
+
+- [#11387](https://github.com/gradio-app/gradio/pull/11387) [`8245afc`](https://github.com/gradio-app/gradio/commit/8245afc669501e1e5f0d619f452455f68a3b7667) - Define root URL in frontend.  Thanks @aliabid94!
+
+### Dependency updates
+
+- @gradio/client@1.15.3
+- @gradio/core@0.19.3
+
+## 1.49.13
+
+### Dependency updates
+
+- @gradio/core@0.19.2
+
+## 1.49.12
+
+### Dependency updates
+
+- @gradio/client@1.15.2
+- @gradio/core@0.19.1
+
 ## 1.49.11
 
 ### Dependency updates

@@ -1,5 +1,17 @@
 # @gradio/preview
 
+## 0.14.0
+
+### Features
+
+- [#11427](https://github.com/gradio-app/gradio/pull/11427) [`6b2bcd0`](https://github.com/gradio-app/gradio/commit/6b2bcd097ae5ef999a7fb273ecf7c7e4c0eab305) - Improve load times of the Gradio front-end.  Thanks @pngwn!
+
+## 0.13.2
+
+### Fixes
+
+- [#11395](https://github.com/gradio-app/gradio/pull/11395) [`59e8b23`](https://github.com/gradio-app/gradio/commit/59e8b236cbbbfd3ad7667fbad31a16677098d9a6) - Be able to run gradio cc dev if the parent directory has spaces.  Thanks @freddyaboulton!
+
 ## 0.13.1
 
 ### Fixes
